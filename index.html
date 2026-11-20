@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sample Exam: Theory & Practice of Sterilization</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --primary: #1d4ed8;
+      --primary-dark: #1e3a8a;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --info-bg: #eff6ff;
+      --info-border: #93c5fd;
+      --warn-bg: #fffbeb;
+      --warn-border: #fcd34d;
+      --ok-bg: #ecfdf5;
+      --ok-border: #6ee7b7;
+      --ok-text: #065f46;
+      --err-bg: #fef2f2;
+      --err-border: #fca5a5;
+      --err-text: #991b1b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .sticky-bar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .timer-box {
+      font-weight: 700;
+      font-size: 1.05rem;
+      background: #1e293b;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+    }
+
+    .timer-box.low-time {
+      background: #7f1d1d;
+      border-color: #f87171;
+      color: #fef2f2;
+    }
+
+    .progress-text {
+      font-size: 0.95rem;
+      color: #e2e8f0;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 24px auto 60px;
+      padding: 0 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+    }
+
+    .subtitle {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .notice {
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      font-size: 0.94rem;
+    }
+
+    .notice.info {
+      background: var(--info-bg);
+      border: 1px solid var(--info-border);
+    }
+
+    .notice.warn {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+    }
+
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    label.field-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.96rem;
+    }
+
+    input[type="text"]:focus {
+      outline: 2px solid var(--primary);
+      border-color: var(--primary);
+    }
+
+    .autosave-note {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--ok-text);
+      font-weight: 500;
+    }
+
+    .q-header {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .option-row:hover {
+      background: #f8fafc;
+    }
+
+    .option-row input[type="radio"] {
+      margin-top: 3px;
+      accent-color: var(--primary);
+    }
+
+    .option-row.correct-ans {
+      background: var(--ok-bg);
+      border-color: var(--ok-border);
+      color: var(--ok-text);
+      font-weight: 600;
+    }
+
+    .option-row.wrong-ans {
+      background: var(--err-bg);
+      border-color: var(--err-border);
+      color: var(--err-text);
+    }
+
+    .explanation {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-left: 3px solid var(--primary);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #334155;
+      display: none;
+    }
+
+    .explanation.visible {
+      display: block;
+    }
+
+    .submit-area {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 7px;
+      font-weight: 600;
+      font-size: 0.98rem;
+      padding: 12px 22px;
+      transition: background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-dark);
+    }
+
+    .btn-copy {
+      background: #059669;
+      color: #ffffff;
+      padding: 10px 16px;
+      font-size: 0.92rem;
+    }
+
+    .btn-copy:hover {
+      background: #047857;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .receipt-box {
+      display: none;
+      background: var(--ok-bg);
+      border: 2px solid #10b981;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 22px;
+    }
+
+    .receipt-box.visible {
+      display: block;
+    }
+
+    .receipt-box h2 {
+      margin: 0 0 10px;
+      font-size: 1.25rem;
+      color: var(--ok-text);
+    }
+
+    .receipt-code-box {
+      background: #ffffff;
+      border: 1px solid #a7f3d0;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.9rem;
+      word-break: break-word;
+      margin: 10px 0 12px;
+    }
+
+    .error-banner {
+      display: none;
+      background: var(--err-bg);
+      border: 1px solid var(--err-border);
+      color: var(--err-text);
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .error-banner.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="sticky-bar">
+    <div class="timer-box" id="timerBox">Time Left: 15:00</div>
+    <div class="progress-text" id="progressText">Answered: 0 / 10</div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h1>Sample Exam: Theory & Practice of Sterilization</h1>
+      <p class="subtitle">10 Multiple-Choice Questions • 15-Minute Attempt Limit • Single Attempt</p>
+
+      <div class="notice info">
+        <strong>Practice & Outage Trial Notice:</strong> This 10-question sample exam lets you test the exam format, <strong>15-minute timer</strong>, and receipt workflow before the main exam. Once you open this page, your <strong>15-minute countdown</strong> starts immediately.
+      </div>
+
+      <div class="notice warn">
+        <strong>Outage & Submission Safeguards:</strong> Your name, ID, and selected answers are <strong>auto-saved locally in this browser</strong> as you click. If power or internet drops before submitting, reopen this link on the <strong>same device and browser</strong> (do not use Incognito/Private mode) to continue within your 15-minute timer. You have <strong>only one attempt</strong>—after submitting, click <strong>Copy Receipt to Clipboard</strong> and <strong>do not forget to paste the receipt code into Google Classroom and click Turn In</strong>.
+      </div>
+
+      <div class="student-grid">
+        <div>
+          <label class="field-label" for="studentName">Student Full Name *</label>
+          <input type="text" id="studentName" placeholder="e.g., Abebe Kebede" autocomplete="name" />
+        </div>
+        <div>
+          <label class="field-label" for="studentId">Student University ID *</label>
+          <input type="text" id="studentId" placeholder="e.g., BIO/1042/16" autocomplete="off" />
+        </div>
+      </div>
+      <div class="autosave-note" id="autosaveStatus">Draft auto-save active: answers are saved locally as you select them.</div>
+    </div>
+
+    <div class="receipt-box" id="receiptBox">
+      <h2 id="receiptTitle">Exam Submitted — Single Attempt Locked</h2>
+      <p><strong>Student:</strong> <span id="recStudent"></span></p>
+      <p><strong>Final Score:</strong> <span id="recScore"></span></p>
+      <p><strong>Submitted At:</strong> <span id="recTime"></span></p>
+      <p><strong>Important Reminder:</strong> Copy the receipt code below and paste it into your <strong>Google Classroom</strong> assignment before clicking <strong>Turn In</strong>.</p>
+      <div class="receipt-code-box" id="receiptCodeText"></div>
+      <button type="button" class="btn-copy" id="copyBtn">Copy Receipt to Clipboard</button>
+      <span id="copyConfirm" style="margin-left: 10px; font-weight: 600; color: #065f46;"></span>
+    </div>
+
+    <div class="error-banner" id="errorBanner"></div>
+
+    <form id="examForm"></form>
+
+    <div class="submit-area">
+      <button type="button" class="btn-primary" id="submitBtn">Submit Exam (Single Attempt)</button>
+    </div>
+  </div>
+
+  <script>
+    const EXAM_KEY = "micro_sterilization_sample_v1";
+    const DURATION_SECONDS = 15 * 60; // 15 minutes
+
+    const QUESTIONS = [
+      {
+        id: 1,
+        question: "Which microbial form is traditionally used as the standard benchmark for validating steam sterilization (autoclaving) effectiveness?",
+        options: [
+          "Endospores of Geobacillus stearothermophilus",
+          "Vegetative cells of Escherichia coli",
+          "Enveloped viruses such as HIV",
+          "Mycelial hyphae of Aspergillus niger"
+        ],
+        answer: "Endospores of Geobacillus stearothermophilus",
+        explanation: "Geobacillus stearothermophilus produces highly heat-resistant endospores and is the standard biological indicator for steam autoclaves."
+      },
+      {
+        id: 2,
+        question: "In standard moist-heat sterilization by autoclave, why is pressurized saturated steam at 121°C (15 psi above atmospheric pressure) far more effective than dry heat at 121°C?",
+        options: [
+          "Steam transfers latent heat rapidly and promotes protein coagulation/denaturation in the presence of water",
+          "Pressurized steam directly oxidizes microbial cell walls into carbon dioxide",
+          "High pressure crushes bacterial ribosomes mechanically",
+          "Steam lowers the required exposure time below 10 seconds for all spores"
+        ],
+        answer: "Steam transfers latent heat rapidly and promotes protein coagulation/denaturation in the presence of water",
+        explanation: "Moist heat denatures and coagulates proteins more efficiently than dry heat, which relies on slower oxidation and requires higher temperatures or longer times."
+      },
+      {
+        id: 3,
+        question: "What does the D-value (decimal reduction time) represent in thermal destruction kinetics?",
+        options: [
+          "The time required at a specific temperature to reduce a microbial population by 90% (one log cycle)",
+          "The temperature increase needed to reduce the D-value by a factor of 10",
+          "The total time required to sterilize a 1-liter broth flask regardless of initial load",
+          "The number of surviving spores after 12 minutes of exposure"
+        ],
+        answer: "The time required at a specific temperature to reduce a microbial population by 90% (one log cycle)",
+        explanation: "D-value is the exposure time at a given temperature that kills 90% (1 log10) of a specific microbial population."
+      },
+      {
+        id: 4,
+        question: "Which sterilization method is most appropriate for heat-sensitive liquid media containing labile vitamins or antibiotics?",
+        options: [
+          "Membrane filtration (e.g., 0.22 µm pore size)",
+          "Incineration in a muffle furnace",
+          "Dry heat oven at 170°C for 1 hour",
+          "Boiling water bath at 100°C for 15 minutes"
+        ],
+        answer: "Membrane filtration (e.g., 0.22 µm pore size)",
+        explanation: "Filtration through a 0.22 µm membrane removes bacteria physically without applying heat that would degrade heat-sensitive nutrients or drugs."
+      },
+      {
+        id: 5,
+        question: "Why must air be effectively removed from an autoclave chamber before and during steam sterilization?",
+        options: [
+          "Trapped air pockets prevent steam penetration and create cooler zones below the target temperature",
+          "Air reacts with water vapor to form corrosive nitric acid inside the chamber",
+          "Air prevents pressure gauges from registering accurately",
+          "Air causes agar media to solidify prematurely during heating"
+        ],
+        answer: "Trapped air pockets prevent steam penetration and create cooler zones below the target temperature",
+        explanation: "Air-steam mixtures have lower temperatures at a given pressure than pure saturated steam, risking incomplete sterilization in trapped air pockets."
+      },
+      {
+        id: 6,
+        question: "Which statement accurately distinguishes sterilization from disinfection?",
+        options: [
+          "Sterilization destroys or removes all forms of microbial life including bacterial endospores, whereas disinfection reduces vegetative pathogens on inanimate objects",
+          "Disinfection eliminates all bacterial endospores and prions, whereas sterilization only reduces surface bacteria",
+          "Sterilization applies only to living skin tissues, whereas disinfection applies only to surgical instruments",
+          "Disinfection and sterilization have identical efficacy against bacterial endospores"
+        ],
+        answer: "Sterilization destroys or removes all forms of microbial life including bacterial endospores, whereas disinfection reduces vegetative pathogens on inanimate objects",
+        explanation: "Sterilization achieves complete absence of viable microbes including endospores; disinfectants may not reliably destroy resistant spores."
+      },
+      {
+        id: 7,
+        question: "Which mechanism primarily accounts for the lethal action of ionizing radiation (such as gamma rays) used in commercial sterilization of medical supplies?",
+        options: [
+          "Generation of free radicals and direct/indirect damage to microbial DNA",
+          "Dissolution of peptidoglycan cross-links by alkaline hydrolysis",
+          "Inhibition of flagellar rotation without altering nucleic acids",
+          "Dehydration of cell membranes similar to sun-drying"
+        ],
+        answer: "Generation of free radicals and direct/indirect damage to microbial DNA",
+        explanation: "Ionizing radiation damages DNA directly and creates reactive free radicals (especially from water radiolysis) that break nucleic acid strands."
+      },
+      {
+        id: 8,
+        question: "What is the purpose of a chemical indicator strip or autoclave tape placed on packages before steam sterilization?",
+        options: [
+          "To confirm exposure to sterilization conditions (such as heat/steam), while biological indicators verify actual spore lethality",
+          "To replace the need for time, temperature, and pressure monitoring",
+          "To neutralize residual toxins produced by Gram-negative bacteria",
+          "To measure the exact colony-forming units remaining inside the load"
+        ],
+        answer: "To confirm that the package reached specific processing conditions, though biological spore indicators are still needed to prove sterilization lethality",
+        explanation: "Chemical indicators show exposure parameters were met, whereas biological indicators (spores) directly test microbial inactivation."
+      },
+      {
+        id: 9,
+        question: "Why does a higher initial microbial bioburden on an item require a longer exposure time at a constant temperature to achieve sterility?",
+        options: [
+          "Starting from a larger population requires more logarithmic reductions to reach a low probability of a surviving organism",
+          "Higher cell numbers increase the boiling point of water inside the chamber",
+          "Bacteria secrete protective capsules only when cell density exceeds 10^6 cells/mL",
+          "D-values automatically double whenever more than one species is present"
+        ],
+        answer: "Starting from a larger population requires more logarithmic reductions to reach a low probability of a surviving organism",
+        explanation: "Because microbial death follows roughly logarithmic kinetics, a higher starting count requires more D-value cycles to reach the desired sterility assurance level."
+      },
+      {
+        id: 10,
+        question: "Which practice helps prevent steam from boiling over or bottles from cracking when autoclaving liquid media?",
+        options: [
+          "Loosen screw caps slightly (or use vented closures) and allow pressure/temperature to drop safely before opening the door",
+          "Seal screw caps tightly and open the autoclave door immediately at 121°C",
+          "Fill glass bottles completely to the rim with no headspace",
+          "Place cold glass flasks directly onto a dry, red-hot metal plate"
+        ],
+        answer: "Loosen screw caps slightly (or use vented closures) and allow pressure/temperature to drop safely before opening the door",
+        explanation: "Tightly sealed containers can build dangerous pressure differentials or crack, and rapid depressurization can cause superheated liquids to boil over violently."
+      }
+    ];
+
+    // Normalize Q8 answer text to match option string cleanly
+    QUESTIONS[7].answer = QUESTIONS[7].options[0];
+
+    function mulberry32(seed) {
+      let a = seed >>> 0;
+      return function () {
+        a |= 0;
+        a = (a + 0x6d2b79f5) | 0;
+        let t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function hashString(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+
+    function shuffledOptionsForQuestion(q, seed) {
+      const rng = mulberry32(seed + q.id * 97);
+      const copy = q.options.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(EXAM_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {}
+      const fresh = {
+        startTime: Date.now(),
+        studentName: "",
+        studentId: "",
+        answers: {},
+        submitted: false,
+        submissionData: null,
+        shuffleSeed: Math.floor(Math.random() * 1000000) + 1
+      };
+      saveState(fresh);
+      return fresh;
+    }
+
+    function saveState(state) {
+      try {
+        localStorage.setItem(EXAM_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    let state = loadState();
+
+    const nameInput = document.getElementById("studentName");
+    const idInput = document.getElementById("studentId");
+    const formEl = document.getElementById("examForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const timerBox = document.getElementById("timerBox");
+    const progressText = document.getElementById("progressText");
+    const autosaveStatus = document.getElementById("autosaveStatus");
+    const errorBanner = document.getElementById("errorBanner");
+    const receiptBox = document.getElementById("receiptBox");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyConfirm = document.getElementById("copyConfirm");
+
+    nameInput.value = state.studentName || "";
+    idInput.value = state.studentId || "";
+
+    function updateProgress() {
+      const count = Object.keys(state.answers || {}).length;
+      progressText.textContent = `Answered: ${count} / ${QUESTIONS.length}`;
+    }
+
+    function markAutosaved() {
+      const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+      autosaveStatus.textContent = `Draft auto-saved locally at ${now}.`;
+    }
+
+    function renderQuestions() {
+      formEl.innerHTML = "";
+      const letters = ["A", "B", "C", "D"];
+
+      QUESTIONS.forEach((q, idx) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.id = `q-card-${q.id}`;
+
+        const qHeader = document.createElement("div");
+        qHeader.className = "q-header";
+        qHeader.textContent = `${idx + 1}. ${q.question}`;
+        card.appendChild(qHeader);
+
+        const optsWrap = document.createElement("div");
+        optsWrap.className = "options";
+
+        const opts = shuffledOptionsForQuestion(q, state.shuffleSeed || 12345);
+        opts.forEach((optText, optIdx) => {
+          const inputId = `q${q.id}_opt${optIdx}`;
+          const row = document.createElement("label");
+          row.className = "option-row";
+          row.htmlFor = inputId;
+          row.dataset.optionValue = optText;
+
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = `q_${q.id}`;
+          radio.id = inputId;
+          radio.value = optText;
+          radio.checked = state.answers[q.id] === optText;
+          radio.disabled = Boolean(state.submitted);
+
+          radio.addEventListener("change", () => {
+            if (state.submitted) return;
+            state.answers[q.id] = optText;
+            saveState(state);
+            updateProgress();
+            markAutosaved();
+          });
+
+          const span = document.createElement("span");
+          span.textContent = `${letters[optIdx]}. ${optText}`;
+
+          row.appendChild(radio);
+          row.appendChild(span);
+          optsWrap.appendChild(row);
+        });
+
+        const exp = document.createElement("div");
+        exp.className = "explanation";
+        exp.id = `exp-${q.id}`;
+        exp.textContent = `Explanation: ${q.explanation}`;
+
+        card.appendChild(optsWrap);
+        card.appendChild(exp);
+        formEl.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    function applyReviewHighlights() {
+      QUESTIONS.forEach((q) => {
+        const chosen = state.answers[q.id];
+        const card = document.getElementById(`q-card-${q.id}`);
+        const exp = document.getElementById(`exp-${q.id}`);
+        if (!card) return;
+
+        card.querySelectorAll(".option-row").forEach((row) => {
+          const val = row.dataset.optionValue;
+          row.classList.remove("correct-ans", "wrong-ans");
+          if (val === q.answer) {
+            row.classList.add("correct-ans");
+          } else if (val === chosen && chosen !== q.answer) {
+            row.classList.add("wrong-ans");
+          }
+        });
+
+        if (exp) exp.classList.add("visible");
+      });
+    }
+
+    function buildReceiptString(data) {
+      const cleanId = (data.studentId || "NOID").replace(/[^A-Za-z0-9]/g, "").toUpperCase() || "NOID";
+      const checksumSource = `${data.studentName}|${data.studentId}|${data.score}|${QUESTIONS.length}|${data.submittedAt}`;
+      const token = hashString(checksumSource).toString(36).toUpperCase().padStart(6, "0");
+      const code = `STERIL-${cleanId}-${data.score}OF${QUESTIONS.length}-${token}`;
+      return `${data.studentName} (${data.studentId}) | Score: ${data.score}/${QUESTIONS.length} (${data.pct}%) | Time: ${data.submittedAt} | Code: ${code}`;
+    }
+
+    function renderReceipt(data, autoSubmitted) {
+      receiptBox.classList.add("visible");
+      document.getElementById("receiptTitle").textContent = autoSubmitted
+        ? "Exam Submitted — Single Attempt Locked (Auto-submitted on 15-min timer expiration)"
+        : "Exam Submitted — Single Attempt Locked";
+      document.getElementById("recStudent").textContent = `${data.studentName} (${data.studentId})`;
+      document.getElementById("recScore").textContent = `${data.score} / ${QUESTIONS.length} (${data.pct}%)`;
+      document.getElementById("recTime").textContent = data.submittedAt;
+      document.getElementById("receiptCodeText").textContent = buildReceiptString(data);
+    }
+
+    function finalizeExam(autoSubmitted) {
+      if (state.submitted) return;
+
+      let score = 0;
+      QUESTIONS.forEach((q) => {
+        if (state.answers[q.id] === q.answer) score++;
+      });
+
+      const pct = ((score / QUESTIONS.length) * 100).toFixed(1);
+      const rawName = (nameInput.value || "").trim();
+      const rawId = (idInput.value || "").trim();
+
+      const studentName = rawName || (autoSubmitted ? "Auto-Submitted (Name Missing)" : "Unnamed Student");
+      const studentId = rawId || "NO-ID";
+      const submittedAt = new Date().toISOString();
+
+      const submissionData = {
+        studentName,
+        studentId,
+        score,
+        pct,
+        submittedAt,
+        autoSubmitted: Boolean(autoSubmitted)
+      };
+
+      state.studentName = studentName;
+      state.studentId = studentId;
+      state.submitted = true;
+      state.submissionData = submissionData;
+      saveState(state);
+
+      nameInput.disabled = true;
+      idInput.disabled = true;
+      submitBtn.disabled = true;
+      formEl.querySelectorAll("input[type='radio']").forEach((r) => (r.disabled = true));
+      errorBanner.classList.remove("visible");
+
+      applyReviewHighlights();
+      renderReceipt(submissionData, autoSubmitted);
+      receiptBox.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    nameInput.addEventListener("input", () => {
+      if (state.submitted) return;
+      state.studentName = nameInput.value;
+      saveState(state);
+      markAutosaved();
+    });
+
+    idInput.addEventListener("input", () => {
+      if (state.submitted) return;
+      state.studentId = idInput.value;
+      saveState(state);
+      markAutosaved();
+    });
+
+    submitBtn.addEventListener("click", () => {
+      if (state.submitted) return;
+      const n = (nameInput.value || "").trim();
+      const id = (idInput.value || "").trim();
+      if (!n || !id) {
+        errorBanner.textContent = "Please enter both your Student Full Name and Student University ID before submitting.";
+        errorBanner.classList.add("visible");
+        errorBanner.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+      finalizeExam(false);
+    });
+
+    copyBtn.addEventListener("click", () => {
+      const text = document.getElementById("receiptCodeText").textContent;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          copyConfirm.textContent = "Copied!";
+        }).catch(() => {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
+      }
+    });
+
+    function fallbackCopy(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      copyConfirm.textContent = "Copied!";
+    }
+
+    function updateTimer() {
+      const elapsedSec = Math.floor((Date.now() - state.startTime) / 1000);
+      const remaining = Math.max(0, DURATION_SECONDS - elapsedSec);
+      const mins = Math.floor(remaining / 60);
+      const secs = remaining % 60;
+      timerBox.textContent = `Time Left: ${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+
+      if (remaining <= 120 && !state.submitted) {
+        timerBox.classList.add("low-time");
+      } else {
+        timerBox.classList.remove("low-time");
+      }
+
+      if (remaining <= 0 && !state.submitted) {
+        finalizeExam(true);
+      }
+    }
+
+    renderQuestions();
+
+    if (state.submitted && state.submissionData) {
+      nameInput.disabled = true;
+      idInput.disabled = true;
+      submitBtn.disabled = true;
+      applyReviewHighlights();
+      renderReceipt(state.submissionData, state.submissionData.autoSubmitted);
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+</body>
+</html>
